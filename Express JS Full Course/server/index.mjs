@@ -22,10 +22,6 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/api/users", (req, res) => {
-  res.status(201).send(mockUsers);
-});
-
 app.get("/api/products", (req, res) => {
   res.status(201).send([
     {
@@ -40,6 +36,24 @@ app.get("/api/products", (req, res) => {
     },
   ]);
 });
+
+app.get("/api/users", (req, res) => {
+  console.log(req.query);
+  const {
+    query: { filter, value },
+  } = req;
+
+  // when filter and value are undefined
+  if (!filter && !value) return res.send(mockUsers);
+  if (filter && value) {
+    const filteredUsers = mockUsers.filter(
+      (user) =>
+        user[filter] && user[filter].toLowerCase().includes(value.toLowerCase())
+    );
+    return res.status(200).send(filteredUsers);
+  }
+});
+
 app.get("/api/users/:id", (req, res) => {
   let parsedParams = parseInt(req.params.id);
   if (isNaN(parsedParams))
@@ -49,6 +63,7 @@ app.get("/api/users/:id", (req, res) => {
   if (!findUsers) return res.status(404).send({ message: "User not found" });
   return res.status(200).send(findUsers);
 });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Running on port ${PORT}`);
