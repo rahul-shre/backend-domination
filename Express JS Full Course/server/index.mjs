@@ -1,5 +1,7 @@
 import express from "express";
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Mock data for users
 const mockUsers = [
@@ -52,6 +54,22 @@ app.get("/api/users", (req, res) => {
     );
     return res.status(200).send(filteredUsers);
   }
+});
+
+app.post("/api/users", (req, res) => {
+  const { userDetail } = req.body;
+  console.log(userDetail);
+  console.log("Received userDetail:", userDetail);
+
+  if (!userDetail || !userDetail.user || !userDetail.displayName) {
+    return res.status(400).json({ message: "Invalid user detail" });
+  }
+  const newUser = {
+    id: mockUsers[mockUsers.length - 1].id + 1,
+    ...userDetail,
+  };
+  mockUsers.push(newUser);
+  return res.status(201).send(newUser);
 });
 
 app.get("/api/users/:id", (req, res) => {
